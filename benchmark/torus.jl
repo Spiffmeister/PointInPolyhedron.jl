@@ -1,6 +1,6 @@
 using PointInPolyhedron
 using StaticArrays
-using Test
+using BenchmarkTools
 
 function toroidal_surface_point(θ, ζ, R₀=5.0, a=1.0)
     x = +(R₀ + a * cos(θ)) * cos(ζ)
@@ -74,20 +74,19 @@ end
 
 exact_inside_outside = map(inside_torus, test_points);
 
+ysa = zeros(length(test_points))
+ywn = zeros(length(test_points))
 
+inout_solidangle = solid_angle(m, test_points)
+inout_winding = winding_number(m, test_points)
 
+solid_angle!(ysa, m, test_points)
+winding_number!(ywn, m, test_points)
 
-@testset "Solid angle method" begin
-    inout_solidangle = solid_angle(m, test_points)
-    ysa = zeros(length(test_points))
-    solid_angle!(ysa, m, test_points)
-end
+@benchmark solid_angle($m, $test_points)
+@benchmark winding_number($m, $test_points)
 
-@testset "Winding number method" begin
-    inout_winding = winding_number(m, test_points)
-    ywn = zeros(length(test_points))
-    winding_number!(ywn, m, test_points)
+@benchmark solid_angle!($ysa, $m, $test_points)
+@benchmark winding_number!($ywn, $m, $test_points)
 
-    # 0 if inside
-    eio = exact_inside_outside .< 0.0
-end
+# @profview solid_angle(m,test_points)

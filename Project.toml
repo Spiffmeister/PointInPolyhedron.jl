@@ -1,4 +1,4 @@
-name = "PointInPolygon"
+name = "PointInPolyhedron"
 uuid = "8eea679b-44b3-4297-b8a9-ca8d519112df"
 version = "0.1.0"
 authors = ["Spiffmeister <robospiff@gmail.com>"]

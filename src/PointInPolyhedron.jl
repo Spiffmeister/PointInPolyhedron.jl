@@ -1,4 +1,4 @@
-module PointInPolygon
+module PointInPolyhedron
 
 using StaticArrays
 using LinearAlgebra
