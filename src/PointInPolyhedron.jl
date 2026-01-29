@@ -39,6 +39,11 @@ crossm(x, y, z) = SVector(x - z, y - z)
 Compute the solid angle of a single triangle
 
 Ω/2 = atan(v₁(v₂×v₃), |v₁||v₂||v₃| + (v₁⋅v₂)|v₃| + (v₂⋅v₃)|v₁|)
+
+If Ω/2 = 0, the point is outside the domain.
+If Ω/2 > 0 the point is inside the domain.
+
+Note that due to round off Ω/2 ≈ 0 is outside
 """
 function solid_angle(v1, v2, v3, pt)
 
@@ -74,7 +79,11 @@ vertex_sign(x, y) = iszero(x) ? sign(y) : sign(x)
 vertex_sign(x, y, z) = vertex_sign(vertex_sign(x, y), z)
 vertex_sign(x) = vertex_sign(x...)
 
-edge_sign(v₁, v₂) = (v₁[2] * v₂[1] - v₁[1] * v₂[2], v₁[3] * v₂[1] - v₁[1] * v₂[3], v₁[3] * v₂[2] - v₁[2] * v₂[3])
+edge_sign(v₁, v₂) = (
+    v₁[2] * v₂[1] - v₁[1] * v₂[2],
+    v₁[3] * v₂[1] - v₁[1] * v₂[3],
+    v₁[3] * v₂[2] - v₁[2] * v₂[3]
+)
 
 triangle_area(v₁, v₂, v₃) = (
     (v₁[1] * v₂[2] - v₁[2] * v₂[1]) * v₃[3] +
@@ -84,6 +93,9 @@ triangle_area(v₁, v₂, v₃) = (
 
 """
 Compute the winding number on a single triangle
+
+wₙ = 0 ⟹ point outside the domain
+wₙ = 1 ⟹ point inside the domain
 """
 function winding_number(v1, v2, v3, point::AbstractVector{TT}) where {TT}
 
@@ -106,7 +118,6 @@ function winding_number(v1, v2, v3, point::AbstractVector{TT}) where {TT}
     if v3_sign != v1_sign
         check_faces += vertex_sign(edge_sign(v3p, v1p))
     end
-
 
     winding_number_contribution = zero(TT)
     if !iszero(check_faces)

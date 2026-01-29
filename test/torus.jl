@@ -1,5 +1,6 @@
 using PointInPolyhedron
 using StaticArrays
+using Random
 using Test
 
 function toroidal_surface_point(θ, ζ, R₀=5.0, a=1.0)
@@ -57,11 +58,12 @@ m = Mesh{Float64}(verts, conns);
     Florians test particles
 """
 
+Random.seed!(123)
 testpt() = toroidal_surface_point(rand() * 2π, rand() * 2π, 5.1, rand() * 0.27 + 0.82)
-florians_test_points(ntest=400) = Tuple(testpt() for _ in 1:ntest)
+generate_test_points(ntest=400) = Tuple(testpt() for _ in 1:ntest)
 
 # Generate the particles
-test_points = florians_test_points();
+test_points = generate_test_points();
 
 function inside_torus(X, R₀=5.0, a=1.0)
     # Distance to axis
@@ -73,14 +75,19 @@ function inside_torus(X, R₀=5.0, a=1.0)
 end
 
 exact_inside_outside = map(inside_torus, test_points);
-
-
+exact_inside = Tuple(Float64(all(inout .< 0.0)) for inout in exact_inside_outside)
 
 
 @testset "Solid angle method" begin
     inout_solidangle = solid_angle(m, test_points)
+    inout_solidangle = Float64.(inout_solidangle .> 0.5)
+
     ysa = zeros(length(test_points))
     solid_angle!(ysa, m, test_points)
+    ysa = Float64.(ysa .> 0.5)
+
+    @test all(inout_solidangle .== exact_inside)
+    @test all(ysa .== exact_inside)
 end
 
 @testset "Winding number method" begin
@@ -89,5 +96,6 @@ end
     winding_number!(ywn, m, test_points)
 
     # 0 if inside
-    eio = exact_inside_outside .< 0.0
+    @test all(inout_winding .== exact_inside)
+    @test all(ywn .== exact_inside)
 end
