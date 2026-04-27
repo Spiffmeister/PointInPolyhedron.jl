@@ -15,7 +15,7 @@ struct Mesh{TT,NVERTS,NTRIS}
     Mesh{TT}(vertices, connections) where {TT} = new{TT,length(vertices),length(connections)}(vertices, connections)
 end
 
-Base.show(::Mesh{TT,NVERTS,NTRIS}) where {TT,NVERTS,NTRIS} = println("Mesh with $(NVERTS) vertices and $(NTRIS) triangles.")
+Base.show(io::IO, m::Mesh{TT,NVERTS,NTRIS}) where {TT,NVERTS,NTRIS} = println("Mesh with $(NVERTS) vertices and $(NTRIS) triangles.")
 
 
 """

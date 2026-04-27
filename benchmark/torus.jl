@@ -56,12 +56,11 @@ m = Mesh{Float64}(verts, conns);
 """
     Florians test particles
 """
-
 testpt() = toroidal_surface_point(rand() * 2π, rand() * 2π, 5.1, rand() * 0.27 + 0.82)
-florians_test_points(ntest=400) = Tuple(testpt() for _ in 1:ntest)
+generate_test_points(ntest=400) = Tuple(testpt() for _ in 1:ntest)
 
 # Generate the particles
-test_points = florians_test_points();
+test_points = generate_test_points();
 
 function inside_torus(X, R₀=5.0, a=1.0)
     # Distance to axis
@@ -89,4 +88,16 @@ winding_number!(ywn, m, test_points)
 @benchmark solid_angle!($ysa, $m, $test_points)
 @benchmark winding_number!($ywn, $m, $test_points)
 
-# @profview solid_angle(m,test_points)
+
+
+# using GLMakie
+
+# f = Figure();
+# axf = Axis3(f[1, 1]);
+
+# plotverts = [Point3f.(v...) for v in verts]
+
+# scatter!(axf, plotverts)
+# scatter!(axf, Point3f(test_points[48]...), color=:red)
+
+# f
